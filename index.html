@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="BodyLens AI لتحليل وضع الجسم الظاهر في الصور باستخدام الذكاء الاصطناعي.">
+
+  <title>BodyLens AI | تحليل الصور</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Tahoma, sans-serif;
+      background: #101827;
+      color: #f5f7fb;
+      padding: 24px 16px;
+    }
+
+    main {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      color: #63e6be;
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: #b8c4d6;
+      line-height: 1.8;
+    }
+
+    .panel {
+      background: #1b2638;
+      border: 1px solid #334258;
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+
+    .upload-area {
+      border: 2px dashed #60748e;
+      border-radius: 14px;
+      padding: 24px 14px;
+      text-align: center;
+    }
+
+    input[type="file"] {
+      display: block;
+      width: 100%;
+      margin-top: 16px;
+      color: #f5f7fb;
+      padding: 10px;
+      background: #26354a;
+      border-radius: 8px;
+    }
+
+    #previewBox {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #preview {
+      display: block;
+      max-width: 100%;
+      max-height: 460px;
+      width: auto;
+      height: auto;
+      margin: 0 auto;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+
+    #previewBox[hidden],
+    #results[hidden] {
+      display: none !important;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    button {
+      flex: 1;
+      min-width: 140px;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #analyzeBtn {
+      background: #63e6be;
+      color: #10231f;
+    }
+
+    #clearBtn {
+      background: #35445a;
+      color: white;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    #message {
+      min-height: 24px;
+      line-height: 1.8;
+      margin-top: 16px;
+      overflow-wrap: anywhere;
+    }
+
+    .result-item {
+      background: #26354a;
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 12px;
+      line-height: 1.8;
+      overflow-wrap: anywhere;
+    }
+
+    .result-item strong {
+      display: block;
+      color: #63e6be;
+      margin-bottom: 5px;
+    }
+
+    .notice {
+      color: #bdc9d9;
+      font-size: 13px;
+      line-height: 1.8;
+      margin-top: 18px;
+    }
+
+    footer {
+      text-align: center;
+      color: #8291a7;
+      font-size: 13px;
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <header>
+      <h1>BodyLens AI</h1>
+      <p>
+        اختَر صورة لاكتشاف نقاط الجسم الظاهرة فيها
+        باستخدام الذكاء الاصطناعي.
+      </p>
+    </header>
+
+    <section class="panel">
+      <div class="upload-area">
+        <label for="photoInput">
+          <strong>اختَر صورة من جهازك</strong>
+        </label>
+
+        <input
+          type="file"
+          id="photoInput"
+          accept="image/*"
+        >
+
+        <div id="previewBox" hidden>
+          <img
+            id="preview"
+            alt="معاينة الصورة المختارة"
+          >
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button type="button" id="analyzeBtn">
+          <span id="buttonText">حلّل الصورة</span>
+        </button>
+
+        <button type="button" id="clearBtn">
+          مسح الصورة
+        </button>
+      </div>
+
+      <p id="message" role="status" aria-live="polite">
+        اختَر صورة للبدء.
+      </p>
+    </section>
+
+    <section class="panel" id="results" hidden>
+      <h2>نتيجة التحليل</h2>
+
+      <div class="result-item">
+        <strong>اكتشاف الجسم</strong>
+        <span id="poseResult">لم يبدأ التحليل بعد</span>
+      </div>
+
+      <div class="result-item">
+        <strong>وضوح نقاط الجسم</strong>
+        <span id="confidenceResult">غير متاح</span>
+      </div>
+
+      <div class="result-item">
+        <strong>التفاصيل</strong>
+        <span id="detailsText">ستظهر النتيجة هنا.</span>
+      </div>
+    </section>
+
+    <p class="notice">
+      ملاحظة: النتائج تصف نقاط الجسم الظاهرة في الصورة فقط.
+      لا يمكن تحديد الوزن أو المقاسات الحقيقية بدقة من صورة عادية.
+      يتطلب التحليل اتصالًا بالإنترنت لتحميل مكتبة الذكاء الاصطناعي
+      والنموذج أول مرة.
+    </p>
+
+    <footer>
+      BodyLens AI
+    </footer>
+  </main>
+
+  <script type="module" src="./script.js"></script>
+</body>
+</html>
